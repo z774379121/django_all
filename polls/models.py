@@ -28,6 +28,12 @@ DEVICEFREE = (
     (1, '不限制设备'),
 )
 
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
+    updated_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
+
+    class Meta:
+        abstract = True
 
 # class Classes(models.Model):
 #     created_at = models.DateTimeField(blank=True, null=True)
@@ -101,15 +107,13 @@ DEVICEFREE = (
 #         unique_together = (('school_id', 's_number'),)
 
 
-class SysApp(models.Model):
+class SysApp(BaseModel):
     app_name = models.CharField(unique=True, max_length=100, blank=True, null=True)
     version_id = models.CharField(max_length=20, blank=True, null=True)
     version_code = models.SmallIntegerField(blank=True, null=True)
     description = models.CharField(max_length=1024, blank=True, null=True)
     icon_path = models.CharField(max_length=512, blank=True, null=True)
     user_id = models.IntegerField(blank=True, null=True)
-    update_date = models.DateTimeField(auto_now=True)
-    create_date = models.DateTimeField(auto_now=True)
     tags = models.CharField(max_length=128, blank=True, null=True)
     author = models.CharField(max_length=128, blank=True, null=True)
     time = models.CharField(max_length=128, blank=True, null=True)
@@ -251,9 +255,7 @@ class SysMapUserRole(models.Model):
 #
 #
 
-class SysUserLocid(models.Model):
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+class SysUserLocid(BaseModel):
     deleted_at = models.DateTimeField(blank=True, null=True)
     local_id = models.IntegerField(unique=True)
     user_id = models.CharField(db_column='USER_ID', max_length=255)  # Field name made lowercase.
@@ -311,7 +313,7 @@ class SysRole(models.Model):
 #     class Meta:
 #         managed = True
 #         db_table = 'sys_user_subuser'
-class SysUser(models.Model):
+class SysUser(BaseModel):
     user_id = models.CharField(db_column='USER_ID', primary_key=True, max_length=36)  # Field name made lowercase.
     user_name = models.CharField(db_column='USER_NAME', unique=True, max_length=30)  # Field name made lowercase.
     real_name = models.CharField(db_column='REAL_NAME', max_length=30, blank=True,
@@ -327,8 +329,6 @@ class SysUser(models.Model):
     salt = models.CharField(db_column='SALT', max_length=24)  # Field name made lowercase.
     device_id = models.CharField(db_column='DEVICE_ID', max_length=128, blank=True,
                                  null=True)  # Field name made lowercase.
-    update_time = models.DateTimeField(db_column='UPDATE_TIME', blank=True, null=True)  # Field name made lowercase.
-    create_time = models.DateTimeField(db_column='CREATE_TIME')  # Field name made lowercase.
     is_locked = models.IntegerField(db_column='IS_LOCKED', choices=LOCKED)  # Field name made lowercase.
     device_free = models.IntegerField(db_column='DEVICE_FREE', choices=DEVICEFREE)  # Field name made lowercase.
     expire_at = models.DateTimeField(blank=True, null=True)
@@ -368,13 +368,11 @@ class SysUser(models.Model):
         super(SysUser, self).save()
 
 
-class SysUserApp(models.Model):
+class SysUserApp(BaseModel):
     id = models.BigAutoField(primary_key=True)
     userid = models.ForeignKey(SysUser, models.CASCADE, db_column='userId',
                                to_field='user_id')  # Field name made lowercase.
     appid = models.ForeignKey(SysApp, models.CASCADE, db_column='appId', to_field='id')  # Field name made lowercase.
-    update_time = models.DateTimeField(blank=True, null=True)
-    create_time = models.DateTimeField(blank=True, null=True)
     disable = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -386,13 +384,11 @@ class SysUserApp(models.Model):
         return f'{self.appid} for {self.userid}'
 
 
-class SysUserDevice(models.Model):
+class SysUserDevice(BaseModel):
     id = models.BigAutoField(primary_key=True)
     userid = models.ForeignKey(SysUser, models.CASCADE, db_column='userId', related_query_name="did",
                                related_name="did", )  # Field name made lowercase.
     deviceid = models.CharField(unique=True, max_length=255)
-    update_time = models.DateTimeField(blank=True, null=True)
-    create_time = models.DateTimeField(blank=True, null=True)
     remark = models.CharField(max_length=512, blank=True, null=True)
     platform = models.CharField(max_length=50, blank=True, null=True)
     disable = models.IntegerField(blank=True, null=True)
@@ -456,9 +452,7 @@ class PlayContent(models.Model):
         db_table = 'play_content'
 
 
-class SysTrades(models.Model):
-    created_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
-    updated_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
+class SysTrades(BaseModel):
     deleted_at = models.DateTimeField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tags = models.ManyToManyField('SysTags', through="SysMapTradeTags", through_fields=('trade_id', 'tag_id'))
@@ -473,9 +467,7 @@ class SysTrades(models.Model):
         return self.name
 
 
-class SysTags(models.Model):
-    created_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
-    updated_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
+class SysTags(BaseModel):
     deleted_at = models.DateTimeField(blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     path = models.CharField(max_length=255, blank=True, null=True)
@@ -496,9 +488,7 @@ class SysTags(models.Model):
         print(self.id)
 
 
-class SysMapTradeTags(models.Model):
-    created_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
-    updated_at = models.DateTimeField(blank=True, null=True, default=django.utils.timezone.now)
+class SysMapTradeTags(BaseModel):
     deleted_at = models.DateTimeField(blank=True, null=True)
     trade_id = models.ForeignKey(SysTrades, db_column='trade_id', on_delete=models.CASCADE, to_field='id')
     tag_id = models.ForeignKey(SysTags, db_column='tag_id', on_delete=models.CASCADE, to_field="id")
@@ -509,9 +499,7 @@ class SysMapTradeTags(models.Model):
         unique_together = (('trade_id', 'tag_id'),)
 
 
-class SysAppTags(models.Model):
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+class SysAppTags(BaseModel):
     deleted_at = models.DateTimeField(blank=True, null=True)
     app_id = models.ForeignKey(SysApp, db_column='app_id', on_delete=models.CASCADE, to_field='id')
     tag_id = models.ForeignKey(SysTags, db_column='tag_id', on_delete=models.CASCADE, to_field='id')
