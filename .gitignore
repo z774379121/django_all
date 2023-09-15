@@ -1,5 +1,5 @@
 static/
-mysite/settings.py
+#mysite/settings.py
 .idea
 polls/migrations
 cloud.py
