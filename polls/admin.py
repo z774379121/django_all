@@ -95,13 +95,6 @@ def create_salt(length=4):
     return salt
 
 
-# 获取原始密码+salt的md5值
-def create_md5(pwd, salt):
-    md5_obj = hashlib.md5()
-    md5_obj.update((salt + pwd).encode(encoding="utf-8"))
-    return md5_obj.hexdigest()
-
-
 # Register your models here.
 @admin.register(SysUser)
 class SysUserAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -170,7 +163,7 @@ class SysUserAdmin(admin.ModelAdmin, ExportCsvMixin):
             print("保存")
         else:
             obj.salt = create_salt(16)
-            obj.password = create_md5(obj.password, obj.salt)
+            obj.gen_salted_password()
             obj.create_time = timezone.now()
             obj.user_id = uuid.uuid1()
 

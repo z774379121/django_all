@@ -348,6 +348,10 @@ class SysUser(BaseModel):
     def __str__(self):
         return self.user_name
 
+    def gen_salted_password(self):
+        md5_obj = hashlib.md5()
+        md5_obj.update((self.salt + self.pwd).encode(encoding="utf-8"))
+        self.password = md5_obj.hexdigest()
     # def get_absolute_url(self):
     #     return "/people/%i/" % self.id
     # def save_title_hash(self):
